@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>E-Commerce AI Support</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f1f5f9;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-buttons button {
+            border: 1px solid #2563eb;
+            background: white;
+            color: #2563eb;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .quick-buttons button:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .chat-container {
+            width: 420px;
+            height: 650px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+                /* HEADER */
+
+        .chat-header {
+            background: #2563eb;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bot-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .header-info h2 {
+            font-size: 18px;
+        }
+
+        .header-info p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 3px;
+        }
+
+        .clear-btn {
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* CHAT AREA */
+
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .bubble {
+            max-width: 78%;
+            padding: 12px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .bot .bubble {
+            background: white;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user .bubble {
+            background: #2563eb;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .time {
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.6;
+        }
+
+        /* TYPING */
+
+        .typing {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .typing .bubble {
+            background: white;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* INPUT AREA */
+
+        .input-area {
+            padding: 15px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+            display: flex;
+            gap: 10px;
+        }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        .quick-buttons button {
+            border: 1px solid #2563eb;
+            background: white;
+            color: #2563eb;
+            padding: 8px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .quick-buttons button:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        function quickMessage(message) {
+
+            const input =
+                document.getElementById("messageInput");
+
+            input.value = message;
+
+            sendMessage();
+        }
+
+        #messageInput {
+            flex: 1;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        #messageInput:focus {
+            border-color: #2563eb;
+        }
+
+        #sendBtn {
+            border: none;
+            background: #2563eb;
+            color: white;
+            width: 48px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        #sendBtn:hover {
+            background: #1d4ed8;
+        }
+
+        /* WELCOME */
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #475569;
+        }
+
+        .welcome-icon {
+            font-size: 45px;
+            margin-bottom: 8px;
+        }
+
+        .welcome h3 {
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 500px) {
+
+            body {
+                align-items: stretch;
+            }
+
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="chat-container">
+
+
+    <!-- HEADER -->
+
+    <div class="chat-header">
+
+        <div class="header-left">
+
+            <div class="bot-avatar">
+                🤖
+            </div>
+
+            <div class="header-info">
+
+                <h2>ShopAssist AI</h2>
+
+                <p>● Online • Customer Support</p>
+
+            </div>
+
+        </div>
+
+
+        <button
+            class="clear-btn"
+            onclick="clearChat()">
+
+            🗑️
+
+        </button>
+
+    </div>
+
+
+    <!-- CHAT -->
+
+    <div
+        class="chat-box"
+        id="chatBox">
+
+
+        <div class="welcome">
+
+            <div class="welcome-icon">
+                🛒
+            </div>
+            <div class="quick-buttons">
+
+    <button onclick="quickMessage('What products do you have?')">
+        🛍️ Products
+    </button>
+
+    <button onclick="quickMessage('Where is my order?')">
+        📦 Track Order
+    </button>
+
+    <button onclick="quickMessage('When will my order arrive?')">
+        🚚 Delivery
+    </button>
+
+    <button onclick="quickMessage('I want a refund')">
+        💰 Refund
+    </button>
+
+    <button onclick="quickMessage('I want to return my order')">
+        🔄 Return
+    </button>
+
+    <button onclick="quickMessage('I want to cancel my order')">
+        ❌ Cancel Order
+    </button>
+
+    <button onclick="quickMessage('My payment failed')">
+        💳 Payment
+    </button>
+
+</div>
+
+            <h3>
+                Welcome!
+            </h3>
+
+            <p>
+                How can I help you today?
+            </p>
+
+        </div>
+
+
+        <!-- TYPING -->
+
+        <div
+            class="message bot typing"
+            id="typing">
+
+            <div class="bubble">
+
+                🤖 Typing...
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- INPUT -->
+
+    <div class="input-area">
+
+        <input
+            type="text"
+            id="messageInput"
+            placeholder="Type your message..."
+            autocomplete="off">
+
+
+        <button
+            id="sendBtn"
+            onclick="sendMessage()">
+
+            ➤
+
+        </button>
+
+    </div>
+
+
+</div>
+
+
+<script>
+function quickMessage(message) {
+
+    const input =
+        document.getElementById("messageInput");
+
+    input.value = message;
+
+    sendMessage();
+}
+
+
+// ========================================
+// GET CURRENT TIME
+// ========================================
+
+function getTime() {
+
+    const now = new Date();
+
+    return now.toLocaleTimeString(
+        [],
+        {
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    );
+
+}
+
+
+// ========================================
+// ADD MESSAGE
+// ========================================
+
+function addMessage(
+    message,
+    sender
+) {
+
+    const chatBox =
+        document.getElementById(
+            "chatBox"
+        );
+
+
+    const messageDiv =
+        document.createElement(
+            "div"
+        );
+
+
+    messageDiv.className =
+        "message " + sender;
+
+
+    const bubble =
+        document.createElement(
+            "div"
+        );
+
+
+    bubble.className =
+        "bubble";
+
+
+    bubble.innerHTML =
+        message;
+
+
+    const time =
+        document.createElement(
+            "div"
+        );
+
+
+    time.className =
+        "time";
+
+
+    time.innerText =
+        getTime();
+
+
+    bubble.appendChild(
+        time
+    );
+
+
+    messageDiv.appendChild(
+        bubble
+    );
+
+
+    chatBox.appendChild(
+        messageDiv
+    );
+
+
+    chatBox.scrollTop =
+        chatBox.scrollHeight;
+
+}
+
+
+// ========================================
+// SEND MESSAGE
+// ========================================
+
+async function sendMessage() {
+
+    const input =
+        document.getElementById(
+            "messageInput"
+        );
+
+
+    const message =
+        input.value.trim();
+
+
+    if (!message) {
+
+        return;
+
+    }
+
+
+    // Display user message
+
+    addMessage(
+        message,
+        "user"
+    );
+
+
+    input.value = "";
+
+
+    // Show typing
+
+    const typing =
+        document.getElementById(
+            "typing"
+        );
+
+
+    typing.style.display =
+        "flex";
+
+
+    try {
+
+
+        const response =
+            await fetch(
+                "/chat",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        message:
+                            message
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        typing.style.display =
+            "none";
+
+
+        addMessage(
+            data.response,
+            "bot"
+        );
+
+
+    }
+
+    catch (error) {
+
+
+        typing.style.display =
+            "none";
+
+
+        addMessage(
+            "⚠️ Unable to connect to the chatbot server.",
+            "bot"
+        );
+
+
+        console.error(
+            error
+        );
+
+    }
+
+}
+
+
+// ========================================
+// ENTER KEY
+// ========================================
+
+document
+    .getElementById(
+        "messageInput"
+    )
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                sendMessage();
+
+            }
+
+        }
+    );
+
+
+// ========================================
+// LOAD CHAT HISTORY
+// ========================================
+
+async function loadHistory() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/history"
+            );
+
+
+        const history =
+            await response.json();
+
+
+        history.forEach(
+            function(chat) {
+
+                addMessage(
+                    chat.user,
+                    "user"
+                );
+
+
+                addMessage(
+                    chat.bot,
+                    "bot"
+                );
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.log(
+            "No previous chat history."
+        );
+
+    }
+
+}
+
+
+// ========================================
+// CLEAR CHAT
+// ========================================
+
+async function clearChat() {
+
+    const confirmClear =
+        confirm(
+            "Are you sure you want to clear the chat history?"
+        );
+
+
+    if (!confirmClear) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await fetch(
+            "/clear-history",
+            {
+
+                method: "POST"
+
+            }
+        );
+
+
+        const chatBox =
+            document.getElementById(
+                "chatBox"
+            );
+
+
+        chatBox.innerHTML = `
+
+            <div class="welcome">
+
+                <div class="welcome-icon">
+                    🛒
+                </div>
+
+                <h3>
+                    Welcome!
+                </h3>
+
+                <p>
+                    How can I help you today?
+                </p>
+
+            </div>
+                <div class="quick-buttons">
+
+                <button onclick="quickMessage('What products do you have?')">
+                    🛍️ Products
+                </button>
+
+                <button onclick="quickMessage('Where is my order?')">
+                    📦 Track Order
+                </button>
+
+                <button onclick="quickMessage('When will my order arrive?')">
+                    🚚 Delivery
+                </button>
+
+                <button onclick="quickMessage('I want a refund')">
+                    💰 Refund
+                </button>
+
+                <button onclick="quickMessage('I want to return my order')">
+                    🔄 Return
+                </button>
+
+                <button onclick="quickMessage('I want to cancel my order')">
+                    ❌ Cancel Order
+                </button>
+
+                <button onclick="quickMessage('My payment failed')">
+                    💳 Payment
+                </button>
+
+            </div>
+
+            <div
+                class="message bot typing"
+                id="typing">
+
+                <div class="bubble">
+                    🤖 Typing...
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Unable to clear chat."
+        );
+
+    }
+
+}
+
+
+// ========================================
+// START
+// ========================================
+
+loadHistory();
+
+
+</script>
+
+
+</body>
+
+</html>
